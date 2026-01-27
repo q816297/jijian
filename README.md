@@ -53,7 +53,7 @@ wrangler d1 create edge-forum-db
 
 ```toml
 name = "edge-forum-worker"
-main = "src/index.js"
+main = "worker.js"
 compatibility_date = "2024-01-01"
 
 [[d1_databases]]
@@ -103,12 +103,12 @@ wrangler deploy
 
 ```
 edge-forum-worker/
-├── src/
-│   └── index.js          # 主入口（Worker 脚本）
-├── wrangler.toml         # Cloudflare 配置文件
-├── README.md            # 项目说明
-└── LICENSE              # 开源协议
+├── worker.js          # 主入口（Worker 脚本，包含前后端完整代码）
+├── README.md          # 项目说明
+└── LICENSE            # 开源协议
 ```
+
+> 注：本项目采用单文件架构，所有后端 API 和前端 HTML/CSS/JS 都集成在 `worker.js` 中，便于部署和维护。
 
 🔧 环境变量说明
 
@@ -162,4 +162,4 @@ edge-forum-worker/
 
 ---
 
-Made with 💜 & ☕ by [Qwara-Chan]
+Made with 💜 & ☕ by Qwara-Chan.
