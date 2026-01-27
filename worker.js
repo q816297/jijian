@@ -1,7 +1,3 @@
-// ============================================
-// Cloudflare Workers + D1 论坛应用
-// ============================================
-
 const RATE_LIMIT = { maxRequests: 60, windowMs: 60000 };
 const PAGE_SIZE = 20;
 
@@ -253,7 +249,7 @@ function getHTML() {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Crystal Forum - 水晶论坛</title>
+  <title>edge-forum-worker</title>
   <meta name="theme-color" content="#667eea">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -488,7 +484,7 @@ function getHTML() {
 <body>
   <div class="container">
     <header class="glass">
-      <div class="logo">💎 Crystal Forum</div>
+      <div class="logo">⚡ edge-forum-worker</div>
       <div class="nav-btns" id="navBtns"></div>
     </header>
     <main id="app"></main>
