@@ -1,269 +1,165 @@
-# Crystal-Forum
-基于 Cloudflare Workers + D1 数据库构建的现代化轻量级论坛系统，采用玻璃态设计风格，支持移动端适配。
+# ⚡ edge-forum-worker
 
-✨ 功能特性
+一个基于 **Cloudflare Worker** + **D1 数据库** 构建的轻量级论坛系统。零服务器成本，快速部署，支持自定义域名。
 
-👥 用户系统
+> 🚀 无需购买服务器，利用 Cloudflare 免费配额即可运行完整的论坛功能
 
-· ✅ 用户注册/登录（JWT认证）
-· ✅ 修改用户名（需验证密码）
-· ✅ 修改密码
-· ✅ 用户角色系统（普通用户/管理员/站长）
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![Cloudflare](https://img.shields.io/badge/platform-Cloudflare-orange.svg)
+![Vanilla JS](https://img.shields.io/badge/frontend-Vanilla%20JS-yellow.svg)
 
-📝 论坛功能
+## ✨ 功能特性
 
-· ✅ 发帖/回帖/编辑/删除
-· ✅ 帖子分类（综合讨论/技术交流/资源分享/问题求助/灌水闲聊）
-· ✅ 浏览量统计
-· ✅ 分页浏览
-· ✅ 实时回复
+- 🔐 **用户系统** - 注册/登录/JWT 认证，支持修改用户名和密码
+- 📝 **帖子管理** - 发布、编辑、删除、分类浏览
+- 💬 **评论回复** - 支持对帖子进行回复讨论
+- 🏷️ **分类系统** - 综合讨论、技术交流、资源分享、问题求助、灌水闲聊
+- 👑 **权限管理** - 普通用户/管理员/站长三级权限体系
+- 📱 **响应式设计** - 完美适配移动端和桌面端
+- 🎨 **玻璃拟态 UI** - 现代化的视觉体验
+- 🛡️ **安全防护** - 内置速率限制（Rate Limiting）防止滥用
+- 🗄️ **D1 数据库** - 使用 Cloudflare 原生 SQLite 数据库
 
-👑 管理功能
+## 🛠️ 技术栈
 
-· ✅ 站长后台管理
-· ✅ 用户权限管理
-· ✅ 帖子管理
+| 层级 | 技术 |
+|------|------|
+| **运行平台** | Cloudflare Worker (Edge Computing) |
+| **数据库** | Cloudflare D1 (SQLite) |
+| **前端** | 原生 HTML5 + CSS3 + Vanilla JavaScript |
+| **认证** | JWT (HMAC SHA-256) |
+| **UI 风格** | Glassmorphism (玻璃拟态) |
 
-📱 移动端优化
+## 🚀 快速开始
 
-· ✅ 响应式设计
-· ✅ 触摸友好界面
-· ✅ 移动端专属样式优化
+### 前置要求
 
-🔒 安全特性
+- [Cloudflare](https://dash.cloudflare.com) 账号（免费版即可）
+- 安装 [Wrangler CLI](https://developers.cloudflare.com/workers/wrangler/install-and-update/)：`npm install -g wrangler`
+- 登录 Wrangler：`wrangler login`
 
-· ✅ 密码哈希存储（SHA-256 + Salt）
-· ✅ JWT令牌认证
-· ✅ 速率限制保护
-· ✅ XSS防护（自动HTML转义）
-
-🚀 快速部署
-
-前置要求
-
-· Cloudflare 账户
-· Wrangler CLI（Cloudflare Workers命令行工具）
-· Node.js 16+
-
-部署步骤
-
-1. 克隆项目
+### 1. 创建 D1 数据库
 
 ```bash
-git clone <项目地址>
-cd crystal-forum
+# 创建数据库
+wrangler d1 create edge-forum-db
+
+# 记录返回的 database_id，后续配置需要用到
 ```
 
-1. 安装依赖
+2. 配置 wrangler.toml
 
-```bash
-npm install -g wrangler
+在项目根目录创建 `wrangler.toml`：
+
+```toml
+name = "edge-forum-worker"
+main = "src/index.js"
+compatibility_date = "2024-01-01"
+
+[[d1_databases]]
+binding = "DB"  # 代码中通过 env.DB 访问
+database_name = "edge-forum-db"
+database_id = "你的-database-id-这里"
 ```
 
-1. 配置项目
+3. 设置环境变量
+
+设置 JWT 密钥（用于 Token 签名）：
 
 ```bash
-# 登录Cloudflare
-wrangler login
+# 生成随机密钥（可选，也可以自定义）
+openssl rand -base64 32
 
-# 初始化项目
-wrangler d1 create crystal-forum-db
-
-# 更新 wrangler.toml 中的数据库绑定
-# 创建 .dev.vars 文件用于本地开发
-echo "JWT_SECRET=your-secret-key-here" > .dev.vars
+# 设置密钥到 Cloudflare
+wrangler secret put JWT_SECRET
+# 然后输入你的密钥
 ```
 
-1. 部署到Cloudflare
+4. 部署
 
 ```bash
-# 部署数据库
-wrangler d1 execute crystal-forum-db --file=./schema.sql
+# 本地预览（可选）
+wrangler dev
 
-# 部署Worker
+# 部署到 Cloudflare
 wrangler deploy
 ```
 
-⚙️ 环境变量
+5. 初始化数据库（首次运行）
 
-变量名 说明 示例
-JWT_SECRET JWT签名密钥 your-secret-key-here
+部署完成后，首次访问会自动创建数据库表结构和默认站长账号。
 
-📊 数据库架构
+🔑 默认账号
 
-用户表 (users)
+部署完成后，可以使用以下默认账号登录：
 
-```sql
-CREATE TABLE users (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  username TEXT UNIQUE NOT NULL,
-  password TEXT NOT NULL,
-  role TEXT DEFAULT 'user',
-  avatar TEXT,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-)
-```
+- 用户名: `admin`
+- 密码: `admin123`
+- 身份: 站长（Webmaster）
 
-帖子表 (posts)
+⚠️ 强烈建议：首次登录后立即修改默认密码！
 
-```sql
-CREATE TABLE posts (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  title TEXT NOT NULL,
-  content TEXT NOT NULL,
-  user_id INTEGER,
-  category TEXT DEFAULT 'general',
-  views INTEGER DEFAULT 0,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (user_id) REFERENCES users(id)
-)
-```
-
-回复表 (replies)
-
-```sql
-CREATE TABLE replies (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  content TEXT NOT NULL,
-  post_id INTEGER,
-  user_id INTEGER,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (post_id) REFERENCES posts(id),
-  FOREIGN KEY (user_id) REFERENCES users(id)
-)
-```
-
-🔧 API接口
-
-公开接口
-
-· POST /api/register - 用户注册
-· POST /api/login - 用户登录
-· GET /api/posts - 获取帖子列表
-· GET /api/post/:id - 获取帖子详情
-
-需要登录的接口
-
-· PUT /api/user/password - 修改密码
-· PUT /api/user/username - 修改用户名
-· POST /api/posts - 发帖
-· POST /api/replies - 回帖
-· PUT /api/post/:id - 编辑帖子
-· DELETE /api/post/:id - 删除帖子
-
-站长接口
-
-· GET /api/admin/users - 获取用户列表
-· PUT /api/admin/user/:id/role - 修改用户角色
-
-📱 默认账户
-
-系统自动创建默认站长账户：
-
-· 用户名: admin
-· 密码: admin123
-
-重要: 部署后请立即修改默认密码！
-
-🎨 设计特点
-
-玻璃态设计
-
-· 毛玻璃背景效果
-· 现代化渐变色彩
-· 优雅的卡片设计
-· 流畅的交互动画
-
-移动端优化
-
-· 触摸友好的大按钮
-· 自适应布局
-· 优化的表单输入
-· 流畅的滑动体验
-
-🔄 本地开发
-
-1. 启动本地开发服务器
-
-```bash
-wrangler dev
-```
-
-1. 访问本地环境
+📝 项目结构
 
 ```
-http://localhost:8787
+edge-forum-worker/
+├── src/
+│   └── index.js          # 主入口（Worker 脚本）
+├── wrangler.toml         # Cloudflare 配置文件
+├── README.md            # 项目说明
+└── LICENSE              # 开源协议
 ```
 
-1. 查看数据库
+🔧 环境变量说明
 
-```bash
-wrangler d1 execute crystal-forum-db --local --command="SELECT * FROM users"
-```
+变量名	必填	说明	
+`JWT_SECRET`	✅	JWT 签名密钥，建议 32 位以上随机字符串	
+`DB`	✅	D1 数据库绑定（在 wrangler.toml 中配置）	
 
-📦 项目结构
+📸 界面预览
 
-```
-crystal-forum/
-├── worker.js          # Worker主文件
-├── wrangler.toml      # 配置文件
-├── .gitignore         # Git忽略文件
-├── README.md          # 说明文档
-└── schema.sql         # 数据库架构
-```
+待添加截图
 
-🛠️ 技术栈
+主要界面
 
-· 运行时: Cloudflare Workers
-· 数据库: Cloudflare D1 (SQLite)
-· 认证: JWT (HMAC SHA-256)
-· 前端: 原生HTML/CSS/JavaScript
-· 样式: 玻璃态设计，响应式布局
+1. 首页 - 帖子列表、分类筛选、分页
+2. 帖子详情 - 内容展示、回复列表、快速回复
+3. 用户菜单 - 修改用户名/密码、管理后台入口
+4. 管理后台 - 用户权限管理（仅站长可见）
 
-🔐 安全建议
+⚡ 性能与限制
 
-1. JWT密钥: 使用强随机字符串，定期更换
-2. 密码策略: 建议至少8位，包含字母数字
-3. 速率限制: 默认限制60请求/分钟，可调整
-4. HTTPS: Cloudflare Workers默认支持
+由于使用 Cloudflare 免费套餐，需要注意以下限制：
 
-🐛 故障排除
+- Worker: 每天 100,000 次请求
+- D1: 每天 50,000 次查询（读取），5,000 次写入
+- CPU 时间: 每次请求最多 50ms（免费版）
 
-常见问题
+对于中小规模论坛完全够用。如需更高配额，可考虑升级到付费套餐。
 
-1. 数据库连接失败
-   · 检查数据库绑定名称是否匹配
-   · 确认数据库已创建并初始化
-2. JWT验证失败
-   · 检查环境变量JWT_SECRET是否设置
-   · 确认客户端和服务端使用相同密钥
-3. 静态资源加载问题
-   · 检查Worker路由配置
-   · 确认HTML中的资源路径正确
+🛣️ 路线图
 
-日志查看
+- 支持 Markdown 编辑器
+- 图片上传功能（R2 存储）
+- 邮件通知系统
+- 暗黑/亮色主题切换
+- 搜索功能
+- 插件系统
 
-```bash
-wrangler tail
-```
+🤝 贡献
 
-📄 许可证
+欢迎提交 Issue 和 Pull Request！
 
-MIT License - 详见LICENSE文件
+1. Fork 本仓库
+2. 创建特性分支 (`git checkout -b feature/AmazingFeature`)
+3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
+4. 推送到分支 (`git push origin feature/AmazingFeature`)
+5. 打开 Pull Request
 
-🤝 贡献指南
+📄 开源协议
 
-1. Fork 项目
-2. 创建功能分支 (git checkout -b feature/AmazingFeature)
-3. 提交更改 (git commit -m 'Add some AmazingFeature')
-4. 推送到分支 (git push origin feature/AmazingFeature)
-5. 开启 Pull Request
+本项目基于 [MIT](LICENSE) 协议开源。
 
-📞 支持
+---
 
-如有问题，请：
-
-1. 查看文档和常见问题
-2. 提交Issue报告bug
-3. 提出功能建议
+Made with 💜 & ☕ by [Qwara-Chan]
