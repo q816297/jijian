@@ -1,1 +1,8 @@
+name = "edge-forum-worker"
+main = "worker.js"
+compatibility_date = "2026"
 
+[[d1_databases]]
+binding = "DB" 
+database_name = "edge-forum-db"
+database_id = "7c6618d6-87f2-4a2f-85e5-b48ffca030b0"
